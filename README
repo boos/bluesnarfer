@@ -2,9 +2,9 @@ bluesnarfer
 ===========
 
 linux bluesnarfing proof-of-concept tool
-
 code author: Roberto Martelloni "boos", boos@core-dumped.info
-italian article: Davide Del Vecchio "Dante Alighieri", dante@alighieri.org
+
+Italian article is in file: BFi13-dev-18
 
 HOW TO USE
 
@@ -31,8 +31,7 @@ example   : "DC" (dialed call list)
 
 it's simple :P
 
- what it's do ?
+what it's do ?
 rfcomm connection to bdaddr and send/recv AT command from gsm extension ..
 
- thanks to:
-mainman, sgrakkyu
+thanks to: mainman, sgrakkyu
