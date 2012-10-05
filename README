@@ -1,15 +1,17 @@
 bluesnarfer
 ===========
 
-linux bluesnarfing proof-of-concept tool, author: boos[at]core-dumped.info
+linux bluesnarfing proof-of-concept tool
+
+code author: Roberto Martelloni "boos", boos@core-dumped.info
+italian article: Davide Del Vecchio "Dante Alighieri", dante@alighieri.org
 
 HOW TO USE
 
 bluesnarfer, version 0.1 -
+
 usage: ./bluesnarfer [options] [ATCMD] -b bt_addr
-
 ATCMD     : valid AT+CMD (GSM EXTENSION)
-
 TYPE      : valid phonebook type ..
 example   : "DC" (dialed call list)
             "SM" (SIM phonebook)
