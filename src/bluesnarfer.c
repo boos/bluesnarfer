@@ -545,7 +545,7 @@ int search_cmd(FILE *fd, struct opt options) {
 	if ( options.phonebook ) 
 		snprintf(buffer, 256, "AT+CPBS=\"%s\"\r\n", options.phonebook);
 	else
-		snprintf(buffer, 256, "AT+CPBS=\"ME\"\r\n", options.phonebook);
+		snprintf(buffer, 256, "AT+CPBS=\"ME\"\r\n");
 
 	if ( !fwrite(buffer, strlen(buffer), 1, fd) ) {
 			

@@ -1,14 +1,14 @@
 CC = gcc
 CFLAGS = -W -g3
 LD = ld
-LDFLAGS = -lbluetooth
+LDFLAGS = `pkg-config --libs bluez`
 SRC = src
 INC = -Iinclude
 
 all: bluesnarfer
 
 bluesnarfer:
-	$(CC) $(INC) $(CFLAGS) $(LDFLAGS) $(SRC)/bluesnarfer.c -o bluesnarfer
+	$(CC) $(INC) $(CFLAGS) $(SRC)/bluesnarfer.c $(LDFLAGS) -o bluesnarfer
 
 clean:
 	rm bluesnarfer
