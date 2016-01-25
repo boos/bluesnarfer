@@ -165,7 +165,7 @@ int bluesnarfer(struct opt options) {
 
 void usage(char *bin) {
 
-	fprintf(stderr, "bluesnarfer, version %s -\n"
+	fprintf(stderr, "bluesnarfer, version %s \n"
 					"usage: %s [options] [ATCMD] -b bt_addr\n\n"
 					"ATCMD     : valid AT+CMD (GSM EXTENSION)\n\n"
 					"TYPE      : valid phonebook type ..\n"
@@ -181,7 +181,8 @@ void usage(char *bin) {
 					"-f name   : search \"name\" in phonebook address\n"
 					"-s TYPE   : select phonebook memory storage\n"
 					"-l        : list aviable phonebook memory storage\n"
-					"-i        : device info\n", VERSION, bin);
+					"-i        : device info\n\n"
+                    "Gently developed by Roberto Martelloni <rmartelloni@gmail.com>\n", VERSION, bin);
 	exit(0);
 }
 

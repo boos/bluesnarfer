@@ -7,7 +7,7 @@ INC = -Iinclude
 
 all: bluesnarfer
 
-bluesnarfer:
+bluesnarfer: src/bluesnarfer.c
 	$(CC) $(INC) $(CFLAGS) $(SRC)/bluesnarfer.c $(LDFLAGS) -o bluesnarfer
 
 clean:
